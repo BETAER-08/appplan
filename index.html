@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>루틴버스 (RoutineBus) | 인터랙티브 프로젝트 계획서</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (#FFFFFF, #F1F5F9, #3B82F6, #10B981) -->
+    <!-- Application Structure Plan: The SPA is structured as a top-down narrative pitch, designed to guide a stakeholder from the high-level vision to the concrete execution plan. It starts with a compelling Hero section that includes an interactive demo of the app's core feature (the modular dashboard), immediately showcasing its value. The flow then logically progresses to define the 'Problem & Solution', visualize the 'Product Design', detail the 'Winning Strategy' against the market's inertia, explain the user-centric 'Monetization Model', and finally, outline the phased 'User Acquisition' plan. This structure transforms a static document into an engaging and persuasive story. -->
+    <!-- Visualization & Content Choices:
+        1. Hero Section -> Goal: Engage & Inform -> Viz: Interactive Modular Dashboard Demo -> Interaction: Click to add/remove/reorder modules -> Justification: "Show, don't tell." This live demo is the most powerful way to communicate the app's core value of personalization, making it instantly understandable. Implemented with HTML/CSS and Vanilla JS.
+        2. Problem & Solution -> Goal: Organize -> Viz: Side-by-side card layout -> Interaction: Subtle hover effects -> Justification: Clearly contrasts the user's current pain points with our app's direct solutions.
+        3. Monetization Model -> Goal: Compare/Inform -> Viz: Donut Chart (Chart.js) -> Interaction: Hover to see details on revenue sources -> Justification: Visually breaks down the simplified, user-friendly ad strategy, making the revenue split between banner and interstitial ads clear.
+        4. User Acquisition -> Goal: Organize (Process) -> Viz: 3-phase flowchart using styled HTML divs -> Interaction: None -> Justification: A clear, step-by-step visual representation of the marketing plan is more digestible than a list.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .section-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 350px;
+            width: 100%;
+            max-width: 350px;
+        }
+        .phone-mockup {
+            width: 320px;
+            height: 640px;
+            background-color: #1e293b; /* slate-800 */
+            border-radius: 2.5rem;
+            padding: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .phone-screen {
+            background-color: #f8fafc; /* slate-50 */
+            height: 100%;
+            border-radius: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .module {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid #e2e8f0;
+            cursor: grab;
+            transition: background-color 0.2s;
+        }
+        .module.dragging {
+            opacity: 0.5;
+        }
+        .module-library-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <nav class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-blue-600">RoutineBus: The Plan</h1>
+                <div class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a href="#demo" class="text-slate-600 hover:text-blue-600 transition">제품 데모</a>
+                    <a href="#strategy" class="text-slate-600 hover:text-blue-600 transition">경쟁 전략</a>
+                    <a href="#monetization" class="text-slate-600 hover:text-blue-600 transition">수익 모델</a>
+                    <a href="#acquisition" class="text-slate-600 hover:text-blue-600 transition">사용자 확보</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="hero" class="text-center py-16 md:py-24">
+            <h2 class="text-5xl md:text-6xl font-black mb-4">나만의 아침을 디자인하다</h2>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-12">'루틴버스'는 사용자가 직접 만드는 초개인화 모닝 대시보드입니다. 아래 데모를 통해 핵심 가치를 직접 경험해보세요.</p>
+        </section>
+
+        <section id="demo" class="mb-24">
+            <div class="section-card grid lg:grid-cols-3 gap-8 items-start">
+                <div class="lg:col-span-1">
+                    <h3 class="text-2xl font-bold mb-4">인터랙티브 데모</h3>
+                    <p class="text-slate-600 mb-6">아래 '모듈 라이브러리'에서 원하는 정보 모듈을 클릭하여 나만의 대시보드를 만들어보세요. 추가된 모듈은 드래그하여 순서를 바꿀 수 있습니다.</p>
+                    <div id="module-library" class="bg-slate-100 p-4 rounded-xl">
+                        <h4 class="font-bold mb-2">모듈 라이브러리</h4>
+                        <div class="space-y-2">
+                            <div class="module-library-item bg-white p-3 rounded-lg shadow-sm hover:bg-blue-50" data-module-id="transport-2">
+                                <p class="font-semibold">[+] 다른 정류장 추가</p>
+                            </div>
+                            <div class="module-library-item bg-white p-3 rounded-lg shadow-sm hover:bg-blue-50" data-module-id="traffic">
+                                <p class="font-semibold">[+] 실시간 도로 교통 상황</p>
+                            </div>
+                            <div class="module-library-item bg-white p-3 rounded-lg shadow-sm hover:bg-blue-50" data-module-id="uv">
+                                <p class="font-semibold">[+] 자외선 지수</p>
+                            </div>
+                            <div class="module-library-item bg-white p-3 rounded-lg shadow-sm hover:bg-blue-50" data-module-id="dust">
+                                <p class="font-semibold">[+] 미세먼지 상세 정보</p>
+                            </div>
+                             <div class="module-library-item bg-white p-3 rounded-lg shadow-sm hover:bg-blue-50" data-module-id="news">
+                                <p class="font-semibold">[+] 주요 뉴스 헤드라인</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 flex justify-center">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="p-4 flex-shrink-0">
+                                <p class="text-3xl font-bold">오전 8:15</p>
+                            </div>
+                            <div id="dashboard-modules" class="flex-grow p-3 overflow-y-auto">
+                                <!-- Default Modules -->
+                                <div class="module" draggable="true" data-module-id="weather">
+                                    <p class="font-bold text-sm">☀️ 날씨: 28° / 미세먼지 좋음</p>
+                                </div>
+                                <div class="module" draggable="true" data-module-id="schedule">
+                                    <p class="font-bold text-sm">🗓️ 오늘의 첫 일정</p>
+                                    <p class="text-xs mt-1">10:00 - OOO팀 주간 회의</p>
+                                </div>
+                                <div class="module" draggable="true" data-module-id="transport-1">
+                                    <p class="font-bold text-sm">🚌 강남역 중앙차로</p>
+                                    <p class="text-xs mt-1">140번: 3분 12초 뒤</p>
+                                </div>
+                            </div>
+                            <div class="h-10 bg-slate-200 flex-shrink-0 flex items-center justify-center text-xs text-slate-500">
+                                메인 대시보드 (광고 없음)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="strategy" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">우리의 경쟁 상대와 승리 전략</h2>
+                <p class="text-lg text-slate-600">우리는 기능의 수가 아닌, '경험의 질'로 경쟁합니다.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div class="section-card">
+                    <h3 class="text-2xl font-bold mb-3">경쟁 상대: "사용자의 귀찮음"</h3>
+                    <p class="text-slate-600">기존 앱들은 모든 기능을 제공하지만, 사용자는 그 속에서 필요한 정보를 찾고, 상황에 따라 설정을 바꿔야 하는 불편함을 감수하고 있습니다. 우리의 진짜 경쟁 상대는 이 '기존의 불편한 습관'입니다.</p>
+                </div>
+                <div class="section-card bg-blue-600 text-white">
+                    <h3 class="text-2xl font-bold mb-3">승리 전략: "완벽한 개인화"</h3>
+                    <p>우리는 사용자에게 '편집권'을 제공합니다. 사용자가 직접 자신의 필요에 맞게 대시보드를 디자인하는 경험은 '나를 위한 앱'이라는 강력한 애착을 형성하며, 이는 그 어떤 기능 추가보다 강력한 경쟁 우위입니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="monetization" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">사용자 경험 중심의 수익 모델</h2>
+                <p class="text-lg text-slate-600">"아침을 방해하지 않는다"는 철학 아래, 사용자의 핵심 경험을 해치지 않는 선에서만 광고를 노출합니다.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">광고 노출 원칙</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-3 text-green-500">✓</span>
+                            <div>
+                                <p class="font-semibold">배너 광고</p>
+                                <p class="text-slate-600 text-sm">'대시보드 편집' 및 '설정' 화면에만 노출됩니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-3 text-green-500">✓</span>
+                            <div>
+                                <p class="font-semibold">전면 광고</p>
+                                <p class="text-slate-600 text-sm">'편집 완료' 3회당 1회만 노출됩니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-3 text-red-500">✗</span>
+                            <div>
+                                <p class="font-semibold">메인 대시보드 광고 없음</p>
+                                <p class="text-slate-600 text-sm">사용자가 매일 보는 핵심 화면에는 광고를 일절 표시하지 않습니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="section-card">
+                    <div class="chart-container">
+                        <canvas id="monetizationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="acquisition" class="py-16">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">3단계 사용자 확보 전략</h2>
+                <p class="text-lg text-slate-600">체계적인 3단계 접근으로 사용자를 확보하고 서비스를 성장시킵니다.</p>
+            </div>
+            <div class="relative flex flex-col md:flex-row justify-between items-center w-full max-w-5xl mx-auto">
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-blue-200 hidden md:block"></div>
+                <div class="flex flex-col md:flex-row w-full justify-between">
+                    <div class="flex-1 text-center p-4 z-10">
+                        <div class="bg-white border-2 border-blue-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-3xl font-bold text-blue-500">1</span></div>
+                        <h3 class="text-xl font-bold mb-2">출시 전: 기반 다지기</h3>
+                        <p class="text-slate-600 text-sm max-w-xs mx-auto">ASO(앱 스토어 최적화)와 타겟 커뮤니티 활동으로 출시를 준비합니다.</p>
+                    </div>
+                    <div class="flex-1 text-center p-4 z-10">
+                         <div class="bg-white border-2 border-blue-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-3xl font-bold text-blue-500">2</span></div>
+                        <h3 class="text-xl font-bold mb-2">출시 직후: 씨앗 뿌리기</h3>
+                        <p class="text-slate-600 text-sm max-w-xs mx-auto">'제가 쓰려고 만들었어요' 톤의 진정성 있는 커뮤니티 바이럴로 초기 사용자 1,000명을 확보합니다.</p>
+                    </div>
+                    <div class="flex-1 text-center p-4 z-10">
+                         <div class="bg-white border-2 border-blue-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-3xl font-bold text-blue-500">3</span></div>
+                        <h3 class="text-xl font-bold mb-2">성장기: 수확 및 확장</h3>
+                        <p class="text-slate-600 text-sm max-w-xs mx-auto">콘텐츠 마케팅과 소액 유료 광고를 통해 성장을 가속화합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-10 mt-10 border-t border-slate-200">
+        <p class="text-slate-500 text-sm">RoutineBus Interactive Project Plan</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Interactive Demo Logic
+            const moduleLibrary = document.getElementById('module-library');
+            const dashboard = document.getElementById('dashboard-modules');
+            let draggedItem = null;
+
+            const moduleTemplates = {
+                'transport-2': '<p class="font-bold text-sm">🚌 잠실역</p><p class="text-xs mt-1">2415번: 5분 40초 뒤</p>',
+                'traffic': '<p class="font-bold text-sm">🚗 실시간 도로 교통</p><p class="text-xs mt-1">강남대로: <span class="text-red-500 font-semibold">정체</span></p>',
+                'uv': '<p class="font-bold text-sm">🧴 자외선 지수</p><p class="text-xs mt-1">오늘 <span class="text-orange-500 font-semibold">높음</span></p>',
+                'dust': '<p class="font-bold text-sm">😷 미세먼지 상세</p><p class="text-xs mt-1">초미세(PM2.5): 12㎍/㎥ (좋음)</p>',
+                'news': '<p class="font-bold text-sm">📰 주요 뉴스</p><p class="text-xs mt-1 truncate">새로운 경제 정책 발표, 시장 반응은...</p>'
+            };
+
+            moduleLibrary.addEventListener('click', (e) => {
+                const item = e.target.closest('.module-library-item');
+                if (!item) return;
+
+                const moduleId = item.dataset.moduleId;
+                if (dashboard.querySelector(`[data-module-id="${moduleId}"]`)) return;
+
+                const newModule = document.createElement('div');
+                newModule.className = 'module';
+                newModule.setAttribute('draggable', 'true');
+                newModule.dataset.moduleId = moduleId;
+                newModule.innerHTML = moduleTemplates[moduleId];
+                
+                const removeBtn = document.createElement('span');
+                removeBtn.innerHTML = '×';
+                removeBtn.className = 'absolute top-1 right-2 text-slate-400 hover:text-red-500 cursor-pointer';
+                removeBtn.onclick = () => newModule.remove();
+                newModule.style.position = 'relative';
+                newModule.appendChild(removeBtn);
+
+                dashboard.appendChild(newModule);
+            });
+
+            dashboard.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('module')) {
+                    draggedItem = e.target;
+                    setTimeout(() => e.target.classList.add('dragging'), 0);
+                }
+            });
+
+            dashboard.addEventListener('dragend', (e) => {
+                if (draggedItem) {
+                    setTimeout(() => draggedItem.classList.remove('dragging'), 0);
+                    draggedItem = null;
+                }
+            });
+
+            dashboard.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(dashboard, e.clientY);
+                if (draggedItem) {
+                    if (afterElement == null) {
+                        dashboard.appendChild(draggedItem);
+                    } else {
+                        dashboard.insertBefore(draggedItem, afterElement);
+                    }
+                }
+            });
+
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.module:not(.dragging)')];
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+
+            // Monetization Chart
+            const monetizationChartCtx = document.getElementById('monetizationChart').getContext('2d');
+            new Chart(monetizationChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['전면 광고 (편집 완료 후)', '배너 광고 (설정 화면)'],
+                    datasets: [{
+                        label: '수익 비중',
+                        data: [80, 20],
+                        backgroundColor: ['#3B82F6', '#93C5FD'],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, font: { size: 14 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) { return label.join(' '); }
+                                    return label;
+                                },
+                                label: function(context) { return ` 예상 수익 비중: ${context.parsed}%`; }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
