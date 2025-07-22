@@ -12,10 +12,10 @@
     <!-- Chosen Palette: Calm Harmony (#FFFFFF, #F1F5F9, #3B82F6, #10B981) -->
     <!-- Application Structure Plan: The SPA is structured as a top-down narrative pitch, designed to guide a stakeholder from the high-level vision to the concrete execution plan. It starts with a compelling Hero section that includes an interactive demo of the app's core feature (the modular dashboard), immediately showcasing its value. The flow then logically progresses to define the 'Problem & Solution', visualize the 'Product Design', detail the 'Winning Strategy' against the market's inertia, explain the user-centric 'Monetization Model', and finally, outline the phased 'User Acquisition' plan. This structure transforms a static document into an engaging and persuasive story. -->
     <!-- Visualization & Content Choices:
-        1. Hero Section -> Goal: Engage & Inform -> Viz: Interactive Modular Dashboard Demo -> Interaction: Click to add/remove/reorder modules -> Justification: "Show, don't tell." This live demo is the most powerful way to communicate the app's core value of personalization, making it instantly understandable. Implemented with HTML/CSS and Vanilla JS.
-        2. Problem & Solution -> Goal: Organize -> Viz: Side-by-side card layout -> Interaction: Subtle hover effects -> Justification: Clearly contrasts the user's current pain points with our app's direct solutions.
-        3. Monetization Model -> Goal: Compare/Inform -> Viz: Donut Chart (Chart.js) -> Interaction: Hover to see details on revenue sources -> Justification: Visually breaks down the simplified, user-friendly ad strategy, making the revenue split between banner and interstitial ads clear.
-        4. User Acquisition -> Goal: Organize (Process) -> Viz: 3-phase flowchart using styled HTML divs -> Interaction: None -> Justification: A clear, step-by-step visual representation of the marketing plan is more digestible than a list.
+        1. Hero Section -> Goal: Engage & Inform -> Viz: Interactive Hybrid Dashboard Demo -> Interaction: Horizontal scroll for weather, Click to expand bus details, Click to add modules from a library, Drag-and-drop to reorder -> Justification: This comprehensive demo showcases all key interactions, proving the app's flexibility and power.
+        2. Problem & Solution -> Goal: Organize -> Viz: Side-by-side card layout -> Justification: Clearly contrasts user pain points with our app's solutions.
+        3. Monetization Model -> Goal: Compare/Inform -> Viz: Donut Chart (Chart.js) -> Justification: Visually breaks down the user-friendly ad strategy.
+        4. User Acquisition -> Goal: Organize (Process) -> Viz: 3-phase flowchart using styled HTML -> Justification: A clear, step-by-step visual of the marketing plan.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -26,24 +26,22 @@
         .section-card {
             background: white;
             border-radius: 1.5rem;
-            padding: 2.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-            border: 1px solid #e2e8f0;
+            padding: 1.5rem; /* p-6 for mobile */
         }
-        .chart-container {
-            position: relative;
-            margin: auto;
-            height: 350px;
-            width: 100%;
-            max-width: 350px;
+        @media (min-width: 768px) {
+            .section-card {
+                padding: 2.5rem; /* p-10 for md and up */
+            }
         }
         .phone-mockup {
-            width: 320px;
-            height: 640px;
+            width: 340px;
+            height: 680px;
             background-color: #1e293b; /* slate-800 */
             border-radius: 2.5rem;
             padding: 1rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin-left: auto;
+            margin-right: auto;
         }
         .phone-screen {
             background-color: #f8fafc; /* slate-50 */
@@ -53,6 +51,29 @@
             flex-direction: column;
             overflow: hidden;
         }
+        .bus-stop-card {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        .bus-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .bus-stop-card.expanded .bus-details {
+            max-height: 200px; /* Adjust as needed */
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 350px;
+            width: 100%;
+            max-width: 350px;
+        }
         .module {
             background-color: white;
             border-radius: 1rem;
@@ -61,6 +82,7 @@
             border: 1px solid #e2e8f0;
             cursor: grab;
             transition: background-color 0.2s;
+            position: relative;
         }
         .module.dragging {
             opacity: 0.5;
@@ -68,6 +90,18 @@
         .module-library-item {
             cursor: pointer;
             transition: background-color 0.2s;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            font-size: 1.2rem;
+            color: #94a3b8;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .remove-btn:hover {
+            color: #ef4444;
         }
     </style>
 </head>
@@ -90,19 +124,19 @@
     <main class="container mx-auto p-4 md:p-8">
 
         <section id="hero" class="text-center py-16 md:py-24">
-            <h2 class="text-5xl md:text-6xl font-black mb-4">나만의 아침을 디자인하다</h2>
-            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-12">'루틴버스'는 사용자가 직접 만드는 초개인화 모닝 대시보드입니다. 아래 데모를 통해 핵심 가치를 직접 경험해보세요.</p>
+            <h2 class="text-4xl md:text-6xl font-black mb-4">나만의 아침을 디자인하다</h2>
+            <p class="text-base md:text-xl text-slate-600 max-w-3xl mx-auto mb-12">기본 정보는 깔끔하게, 추가 정보는 자유롭게. 당신의 아침에 꼭 맞는 대시보드를 직접 만들어보세요.</p>
         </section>
 
         <section id="demo" class="mb-24">
             <div class="section-card grid lg:grid-cols-3 gap-8 items-start">
                 <div class="lg:col-span-1">
                     <h3 class="text-2xl font-bold mb-4">인터랙티브 데모</h3>
-                    <p class="text-slate-600 mb-6">아래 '모듈 라이브러리'에서 원하는 정보 모듈을 클릭하여 나만의 대시보드를 만들어보세요. 추가된 모듈은 드래그하여 순서를 바꿀 수 있습니다.</p>
+                    <p class="text-slate-600 mb-6">아래 '모듈 라이브러리'에서 원하는 정보 모듈을 클릭하여 대시보드에 추가해보세요. 추가된 모듈은 드래그하여 순서를 바꿀 수 있습니다.</p>
                     <div id="module-library" class="bg-slate-100 p-4 rounded-xl">
                         <h4 class="font-bold mb-2">모듈 라이브러리</h4>
                         <div class="space-y-2">
-                            <div class="module-library-item bg-white p-3 rounded-lg shadow-sm hover:bg-blue-50" data-module-id="transport-2">
+                            <div class="module-library-item bg-white p-3 rounded-lg shadow-sm hover:bg-blue-50" data-module-id="add-stop">
                                 <p class="font-semibold">[+] 다른 정류장 추가</p>
                             </div>
                             <div class="module-library-item bg-white p-3 rounded-lg shadow-sm hover:bg-blue-50" data-module-id="traffic">
@@ -123,25 +157,55 @@
                 <div class="lg:col-span-2 flex justify-center">
                     <div class="phone-mockup">
                         <div class="phone-screen">
-                            <div class="p-4 flex-shrink-0">
-                                <p class="text-3xl font-bold">오전 8:15</p>
-                            </div>
-                            <div id="dashboard-modules" class="flex-grow p-3 overflow-y-auto">
-                                <!-- Default Modules -->
-                                <div class="module" draggable="true" data-module-id="weather">
-                                    <p class="font-bold text-sm">☀️ 날씨: 28° / 미세먼지 좋음</p>
+                            <div class="p-4 flex-shrink-0 border-b border-slate-200">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="text-xs text-slate-500">7월 23일 수요일</p>
+                                        <p class="text-3xl font-bold">오전 8:15</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-bold">☀️ 28°</p>
+                                        <p class="text-xs text-slate-500">미세먼지 좋음</p>
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="flex-shrink-0 py-3 border-b border-slate-200">
+                                <div class="px-4 mb-2">
+                                    <h3 class="font-bold text-sm">시간대별 날씨</h3>
+                                </div>
+                                <div class="flex space-x-4 overflow-x-auto pb-2 px-4">
+                                    <div class="text-center flex-shrink-0 w-16"><p class="text-xs font-medium">오전 9시</p><p class="text-2xl my-1">☀️</p><p class="font-bold">29°</p><p class="text-xs text-blue-500">0%</p></div>
+                                    <div class="text-center flex-shrink-0 w-16"><p class="text-xs font-medium">오전 10시</p><p class="text-2xl my-1">☀️</p><p class="font-bold">30°</p><p class="text-xs text-blue-500">0%</p></div>
+                                    <div class="text-center flex-shrink-0 w-16"><p class="text-xs font-medium">오후 12시</p><p class="text-2xl my-1">☁️</p><p class="font-bold">32°</p><p class="text-xs text-blue-500">10%</p></div>
+                                    <div class="text-center flex-shrink-0 w-16"><p class="text-xs font-medium">오후 3시</p><p class="text-2xl my-1">🌧️</p><p class="font-bold">30°</p><p class="text-xs text-blue-500 font-bold">60%</p></div>
+                                    <div class="text-center flex-shrink-0 w-16"><p class="text-xs font-medium">오후 6시</p><p class="text-2xl my-1">🌦️</p><p class="font-bold">28°</p><p class="text-xs text-blue-500 font-bold">40%</p></div>
+                                </div>
+                            </div>
+                            <div id="dashboard-modules" class="flex-grow p-4 overflow-y-auto">
                                 <div class="module" draggable="true" data-module-id="schedule">
-                                    <p class="font-bold text-sm">🗓️ 오늘의 첫 일정</p>
-                                    <p class="text-xs mt-1">10:00 - OOO팀 주간 회의</p>
+                                    <span class="remove-btn">×</span>
+                                    <h3 class="font-bold text-sm mb-2">오늘의 첫 일정</h3>
+                                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 -mx-2 -mb-2">
+                                        <p class="font-semibold text-sm">10:00 - OOO팀 주간 회의</p>
+                                    </div>
                                 </div>
-                                <div class="module" draggable="true" data-module-id="transport-1">
-                                    <p class="font-bold text-sm">🚌 강남역 중앙차로</p>
-                                    <p class="text-xs mt-1">140번: 3분 12초 뒤</p>
+                                <div class="bus-stop-card bg-white p-3 rounded-xl border border-slate-200 mt-3" data-module-id="transport-1">
+                                    <span class="remove-btn">×</span>
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="font-bold text-sm">강남역 중앙차로</p>
+                                            <p class="text-sm text-blue-600 font-semibold">140번: 3분 12초 뒤</p>
+                                        </div>
+                                        <span class="text-slate-400 text-xl arrow transition-transform">▼</span>
+                                    </div>
+                                    <div class="bus-details border-t border-slate-200 mt-3 text-sm text-slate-600">
+                                        <p class="flex justify-between py-1"><span>402번</span> <span class="font-semibold">8분 5초 뒤</span></p>
+                                        <p class="flex justify-between py-1"><span>M6410번</span> <span class="font-semibold">12분 뒤</span></p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="h-10 bg-slate-200 flex-shrink-0 flex items-center justify-center text-xs text-slate-500">
-                                메인 대시보드 (광고 없음)
+                            <div class="h-12 bg-slate-200 flex-shrink-0 flex items-center justify-center text-sm text-slate-500">
+                                하단 배너 광고
                             </div>
                         </div>
                     </div>
@@ -179,21 +243,21 @@
                             <span class="text-2xl mr-3 text-green-500">✓</span>
                             <div>
                                 <p class="font-semibold">배너 광고</p>
-                                <p class="text-slate-600 text-sm">'대시보드 편집' 및 '설정' 화면에만 노출됩니다.</p>
+                                <p class="text-slate-600 text-sm">메인 대시보드 하단에 고정됩니다.</p>
                             </div>
                         </li>
                         <li class="flex items-start">
                             <span class="text-2xl mr-3 text-green-500">✓</span>
                             <div>
                                 <p class="font-semibold">전면 광고</p>
-                                <p class="text-slate-600 text-sm">'편집 완료' 3회당 1회만 노출됩니다.</p>
+                                <p class="text-slate-600 text-sm">'모듈 추가/편집 완료' 3회당 1회만 노출됩니다.</p>
                             </div>
                         </li>
                         <li class="flex items-start">
                             <span class="text-2xl mr-3 text-red-500">✗</span>
                             <div>
-                                <p class="font-semibold">메인 대시보드 광고 없음</p>
-                                <p class="text-slate-600 text-sm">사용자가 매일 보는 핵심 화면에는 광고를 일절 표시하지 않습니다.</p>
+                                <p class="font-semibold">핵심 흐름 방해 광고 없음</p>
+                                <p class="text-slate-600 text-sm">정보를 확인하는 주된 사용 흐름 중에는 광고가 노출되지 않습니다.</p>
                             </div>
                         </li>
                     </ul>
@@ -240,24 +304,61 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Interactive Demo Logic
+            const phoneScreen = document.querySelector('.phone-screen');
             const moduleLibrary = document.getElementById('module-library');
             const dashboard = document.getElementById('dashboard-modules');
             let draggedItem = null;
+            let stopCounter = 1;
 
             const moduleTemplates = {
-                'transport-2': '<p class="font-bold text-sm">🚌 잠실역</p><p class="text-xs mt-1">2415번: 5분 40초 뒤</p>',
-                'traffic': '<p class="font-bold text-sm">🚗 실시간 도로 교통</p><p class="text-xs mt-1">강남대로: <span class="text-red-500 font-semibold">정체</span></p>',
-                'uv': '<p class="font-bold text-sm">🧴 자외선 지수</p><p class="text-xs mt-1">오늘 <span class="text-orange-500 font-semibold">높음</span></p>',
-                'dust': '<p class="font-bold text-sm">😷 미세먼지 상세</p><p class="text-xs mt-1">초미세(PM2.5): 12㎍/㎥ (좋음)</p>',
-                'news': '<p class="font-bold text-sm">📰 주요 뉴스</p><p class="text-xs mt-1 truncate">새로운 경제 정책 발표, 시장 반응은...</p>'
+                'add-stop': () => {
+                    stopCounter++;
+                    return `<div class="bus-stop-card bg-white p-3 rounded-xl border border-slate-200" data-module-id="transport-${stopCounter}">
+                                <span class="remove-btn">×</span>
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="font-bold text-sm">새 정류장 ${stopCounter-1}</p>
+                                        <p class="text-sm text-blue-600 font-semibold">303번: 9분 뒤</p>
+                                    </div>
+                                    <span class="text-slate-400 text-xl arrow transition-transform">▼</span>
+                                </div>
+                                <div class="bus-details border-t border-slate-200 mt-3 text-sm text-slate-600">
+                                    <p class="flex justify-between py-1"><span>721번</span> <span class="font-semibold">15분 뒤</span></p>
+                                </div>
+                            </div>`;
+                },
+                'traffic': '<h3 class="font-bold text-sm mb-2">🚗 실시간 도로 교통</h3><p class="text-xs mt-1">강남대로: <span class="text-red-500 font-semibold">정체</span></p>',
+                'uv': '<h3 class="font-bold text-sm mb-2">🧴 자외선 지수</h3><p class="text-xs mt-1">오늘 <span class="text-orange-500 font-semibold">높음</span></p>',
+                'dust': '<h3 class="font-bold text-sm mb-2">😷 미세먼지 상세</h3><p class="text-xs mt-1">초미세(PM2.5): 12㎍/㎥ (좋음)</p>',
+                'news': '<h3 class="font-bold text-sm mb-2">📰 주요 뉴스</h3><p class="text-xs mt-1 truncate">새로운 경제 정책 발표, 시장 반응은...</p>'
             };
 
+            phoneScreen.addEventListener('click', (e) => {
+                const card = e.target.closest('.bus-stop-card');
+                if (card) {
+                    card.classList.toggle('expanded');
+                    const arrow = card.querySelector('.arrow');
+                    if (arrow) {
+                        arrow.style.transform = card.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
+                    }
+                }
+                if (e.target.classList.contains('remove-btn')) {
+                    e.target.closest('.module, .bus-stop-card').remove();
+                }
+            });
+            
             moduleLibrary.addEventListener('click', (e) => {
                 const item = e.target.closest('.module-library-item');
                 if (!item) return;
 
                 const moduleId = item.dataset.moduleId;
+                
+                if (moduleId === 'add-stop') {
+                    const newStopHtml = moduleTemplates['add-stop']();
+                    dashboard.insertAdjacentHTML('beforeend', newStopHtml);
+                    return;
+                }
+                
                 if (dashboard.querySelector(`[data-module-id="${moduleId}"]`)) return;
 
                 const newModule = document.createElement('div');
@@ -268,18 +369,17 @@
                 
                 const removeBtn = document.createElement('span');
                 removeBtn.innerHTML = '×';
-                removeBtn.className = 'absolute top-1 right-2 text-slate-400 hover:text-red-500 cursor-pointer';
-                removeBtn.onclick = () => newModule.remove();
-                newModule.style.position = 'relative';
+                removeBtn.className = 'remove-btn';
                 newModule.appendChild(removeBtn);
 
                 dashboard.appendChild(newModule);
             });
 
             dashboard.addEventListener('dragstart', (e) => {
-                if (e.target.classList.contains('module')) {
-                    draggedItem = e.target;
-                    setTimeout(() => e.target.classList.add('dragging'), 0);
+                const target = e.target.closest('[draggable="true"]');
+                if (target) {
+                    draggedItem = target;
+                    setTimeout(() => target.classList.add('dragging'), 0);
                 }
             });
 
@@ -303,7 +403,7 @@
             });
 
             function getDragAfterElement(container, y) {
-                const draggableElements = [...container.querySelectorAll('.module:not(.dragging)')];
+                const draggableElements = [...container.querySelectorAll('[draggable="true"]:not(.dragging)')];
                 return draggableElements.reduce((closest, child) => {
                     const box = child.getBoundingClientRect();
                     const offset = y - box.top - box.height / 2;
@@ -315,15 +415,14 @@
                 }, { offset: Number.NEGATIVE_INFINITY }).element;
             }
 
-            // Monetization Chart
             const monetizationChartCtx = document.getElementById('monetizationChart').getContext('2d');
             new Chart(monetizationChartCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['전면 광고 (편집 완료 후)', '배너 광고 (설정 화면)'],
+                    labels: ['전면 광고 (편집 완료 후)', '배너 광고 (메인 하단)'],
                     datasets: [{
                         label: '수익 비중',
-                        data: [80, 20],
+                        data: [75, 25],
                         backgroundColor: ['#3B82F6', '#93C5FD'],
                         borderColor: '#FFFFFF',
                         borderWidth: 4,
